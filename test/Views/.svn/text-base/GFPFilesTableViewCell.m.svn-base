@@ -1,0 +1,81 @@
+//
+//  GFPFilesTableViewCell.m
+//  V2_Commbar
+//
+//  Created by yanzhen on 17/1/24.
+//  Copyright © 2017年 com.v2tech. All rights reserved.
+//
+
+#import "GFPFilesTableViewCell.h"
+
+@interface GFPFilesTableViewCell ()
+@property (retain, nonatomic) IBOutlet UIButton *selectedBtn;
+@property (retain, nonatomic) IBOutlet UIImageView *mainImageView;
+@property (retain, nonatomic) IBOutlet UILabel *nameLabel;
+@property (retain, nonatomic) IBOutlet UILabel *timeLabel;
+@property (retain, nonatomic) IBOutlet UILabel *sizeLabel;
+
+@end
+
+@implementation GFPFilesTableViewCell
+
+- (void)configureWithAsset:(ALAsset *)asset isSelected:(BOOL)selected{
+    self.selectedBtn.selected = selected;
+    self.mainImageView.image = (asset.thumbnail == NULL) ? [UIImage imageNamed:@"CTAssetsPickerEmpty"] : [UIImage imageWithCGImage:asset.thumbnail];
+    long long size = [asset.defaultRepresentation size];
+    NSString * adaptedSize = [[NSNumber numberWithLongLong:size] selfAdaptedFileSizeString];
+    self.sizeLabel.text = adaptedSize;
+    
+    NSDate * lastestDate = [asset valueForProperty:ALAssetPropertyDate];
+    NSDateFormatter * dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+    [dateFormatter setDateFormat:@"YY/MM/dd HH:mm"];
+    self.timeLabel.text = [dateFormatter stringFromDate:lastestDate];
+    self.nameLabel.text = [[asset defaultRepresentation] filename];
+}
+
+-(void)setIsPicked:(BOOL)isPicked{
+    _isPicked = isPicked;
+    self.selectedBtn.selected = isPicked;
+}
+
+- (void)configureWithFileName:(NSString *)name filePath:(NSString *)filePath isSelected:(BOOL)selected{
+    [[NSFileManager defaultManager] fileExistsAtPath:filePath isDirectory:&_isDirectory];
+    self.selectedBtn.selected = selected;
+    self.nameLabel.text = name;
+    NSString *extension = [filePath pathExtension];
+    NSDictionary * fileInfo = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
+    NSDate * modificationDate = [fileInfo objectForKey:NSFileModificationDate];
+    NSDateFormatter * dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+    [dateFormatter setDateFormat:@"YY/MM/dd HH:mm"];
+    self.timeLabel.text = [dateFormatter stringFromDate:modificationDate];
+    
+    NSNumber * fileSize = [fileInfo objectForKey:NSFileSize];
+    NSString * adaptedFileSize = [fileSize selfAdaptedFileSizeString];
+    self.sizeLabel.text = adaptedFileSize;
+    if (_isDirectory) {
+        self.mainImageView.image = [UIImage imageNamed:@"sendFile.png"];
+    }else{
+        self.mainImageView.image = [UIImage imageWithFileExt:extension];
+    }
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+- (void)dealloc {
+    [_selectedBtn release];
+    [_mainImageView release];
+    [_nameLabel release];
+    [_timeLabel release];
+    [_sizeLabel release];
+    [super dealloc];
+}
+@end

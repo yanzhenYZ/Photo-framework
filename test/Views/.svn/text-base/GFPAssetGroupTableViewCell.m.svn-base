@@ -1,0 +1,56 @@
+//
+//  GFPAssetGroupTableViewCell.m
+//  V2_Commbar
+//
+//  Created by yanzhen on 17/1/24.
+//  Copyright © 2017年 com.v2tech. All rights reserved.
+//
+
+#import "GFPAssetGroupTableViewCell.h"
+
+static CGFloat const kGFPFileThumbnailLength = 54.0f;
+
+@interface GFPAssetGroupTableViewCell ()
+@property (retain, nonatomic) IBOutlet UIImageView *mainImageView;
+@property (retain, nonatomic) IBOutlet UILabel *nameLabel;
+@property (retain, nonatomic) IBOutlet UILabel *countLabel;
+@property (retain, nonatomic) IBOutlet UILabel *timeLabel;
+
+@end
+
+@implementation GFPAssetGroupTableViewCell
+
+- (void)configure:(ALAssetsGroup *)group firstAsset:(ALAsset *)asset{
+    CGImageRef posterImage      = group.posterImage;
+    size_t height               = CGImageGetHeight(posterImage);
+    float scale                 = height / kGFPFileThumbnailLength;
+    
+    self.mainImageView.image = [UIImage imageWithCGImage:posterImage scale:scale orientation:UIImageOrientationUp];
+    self.nameLabel.text = [group valueForProperty:ALAssetsGroupPropertyName];
+    self.countLabel.text        = [NSString stringWithFormat:NSLocalizedString(@"(%ld项)", nil), (long)group.numberOfAssets];
+    
+    NSDate * lastestDate = [asset valueForProperty:ALAssetPropertyDate];
+    NSDateFormatter * dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+    [dateFormatter setDateFormat:@"YY/MM/dd HH:mm"];
+    self.timeLabel.text = [dateFormatter stringFromDate:lastestDate];
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+- (void)dealloc {
+    [_mainImageView release];
+    [_nameLabel release];
+    [_countLabel release];
+    [_timeLabel release];
+    [super dealloc];
+}
+@end
